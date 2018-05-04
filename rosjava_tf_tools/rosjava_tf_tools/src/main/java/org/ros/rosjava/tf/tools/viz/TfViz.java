@@ -59,9 +59,11 @@ public class TfViz extends AbstractNodeMain implements GraphListener<String, Tra
 		public JGraphXApplet(TfViz tfViz) {
 			this.tfViz = tfViz;
 		}
+		public mxCircleLayout layout;
 
 		@Override
 		public void init() {
+			System.out.println("Initializing JGraphXApplet");
 			setPreferredSize(DEFAULT_SIZE);
 			mxGraphComponent component = new mxGraphComponent(tfViz.jgxAdapter);
 			component.setConnectable(false);
@@ -70,7 +72,7 @@ public class TfViz extends AbstractNodeMain implements GraphListener<String, Tra
 			resize(DEFAULT_SIZE);
 
 			// positioning via jgraphx layouts
-			mxCircleLayout layout = new mxCircleLayout(tfViz.jgxAdapter);
+			layout = new mxCircleLayout(tfViz.jgxAdapter);
 
 			// center the circle
 			int radius = 100;
@@ -79,11 +81,15 @@ public class TfViz extends AbstractNodeMain implements GraphListener<String, Tra
 			layout.setRadius(radius);
 			layout.setMoveCircle(true);
 
-			layout.execute(jgxAdapter.getDefaultParent());
+			relayout();
+		}
+
+		public void relayout() {
+			layout.execute(tfViz.jgxAdapter.getDefaultParent());
 		}
 	}
 
-	protected static String laptopMasterUri = "http://localhost:11311";
+	protected static String laptopMasterUri = "http://"+System.getenv("ROS_IP")+":11311";
 
 	public static void main(String[] args) {
 		try {
@@ -107,17 +113,23 @@ public class TfViz extends AbstractNodeMain implements GraphListener<String, Tra
 
 	private final JFrame frame;
 
-	protected JGraphXAdapter<String, DefaultEdge> jgxAdapter;
+	protected final JGraphXAdapter<String, DefaultEdge> jgxAdapter;
+	protected final JGraphXApplet applet;
+
 	protected final ListenableGraph<String, DefaultEdge> g;
 	//protected final HashMap<String,Edge> edges;
 	protected final HashMap<String, com.mxgraph.model.mxCell> vertices;
 
 	public TfViz() {
 		frame = new JFrame();
-		g = new DefaultListenableGraph<String, DefaultEdge>(new DefaultDirectedGraph<String, DefaultEdge>(DefaultEdge.class));
+		g =	new DefaultListenableGraph<String, DefaultEdge>(new DefaultDirectedGraph<String, DefaultEdge>(DefaultEdge.class));
 		g.addVertex("NONE");
-		jgxAdapter = new JGraphXAdapter<String, DefaultEdge>(g);
+		jgxAdapter = new JGraphXAdapter<>(g);
+		applet = new JGraphXApplet(this);
+		applet.init();
+
 		//edges = new HashMap<String,Edge>();
+
 		vertices = new HashMap<String, com.mxgraph.model.mxCell>();
 	}
 
@@ -128,7 +140,7 @@ public class TfViz extends AbstractNodeMain implements GraphListener<String, Tra
 			tfl = new TransformListener(node);
 			tfl.addListener(this);
 
-			frame.getContentPane().add(new JGraphXApplet(this));
+			frame.getContentPane().add(applet);
 
 			frame.setPreferredSize(new Dimension(800, 800));
 			frame.setSize(600, 600);
@@ -153,8 +165,8 @@ public class TfViz extends AbstractNodeMain implements GraphListener<String, Tra
 
 	@Override
 	public void onShutdown(Node node) {
-		this.node.shutdown();
-		this.node = null;
+		//this.node.shutdown();
+		//this.node = null;
 		frame.dispose();
 	}
 
@@ -162,30 +174,14 @@ public class TfViz extends AbstractNodeMain implements GraphListener<String, Tra
 	public void edgeAdded(GraphEdgeChangeEvent<String, TransformBuffer> e) {
 		try {
 			if (vertices.size() == 0) {
-				jgxAdapter.removeCells();
+				g.removeVertex("NONE");
 			}
 
 			TransformBuffer txBuff = e.getEdge();
 
-			/*com.mxgraph.model.mxCell parentVizNode;
-			com.mxgraph.model.mxCell childVizNode;
-
-			if (!vertices.containsKey(txBuff.parentFrame)) {
-				parentVizNode = new com.touchgraph.graphlayout.Node(txBuff.parentFrame);
-			}
-			else {
-				parentVizNode = vertices.get(txBuff.parentFrame);
-			}
-
-			if (!vertices.containsKey(txBuff.childFrame)) {
-				childVizNode = new com.touchgraph.graphlayout.Node(txBuff.childFrame);
-			}
-			else {
-				childVizNode = vertices.get(txBuff.childFrame);
-			}*/
-
-			//Edge vizEdge = new Edge(parentVizNode, childVizNode, 1);
 			g.addEdge(txBuff.parentFrame, txBuff.childFrame);
+			applet.relayout();
+			//frame.repaint();
 		}
 		catch (Exception exp) {
 			exp.printStackTrace();
@@ -198,16 +194,22 @@ public class TfViz extends AbstractNodeMain implements GraphListener<String, Tra
 
 	@Override
 	public void vertexAdded(GraphVertexChangeEvent<String> e) {
+		System.out.println("Adding new vertex");
 		try {
 			if (vertices.size() == 0) {
-				jgxAdapter.removeCells();
+				g.removeVertex("NONE");
 			}
-			String frame = e.getVertex();
-			g.addVertex(frame);
+
+			String tfFrameName = e.getVertex();
+			g.addVertex(tfFrameName);
+			//frame.repaint();
 		}
 		catch (Exception exp) {
 			exp.printStackTrace();
 		}
+		System.out.println("Vertex set size: "+g.vertexSet().size());
+		applet.relayout();
+		//applet.init();
 	}
 
 	@Override
