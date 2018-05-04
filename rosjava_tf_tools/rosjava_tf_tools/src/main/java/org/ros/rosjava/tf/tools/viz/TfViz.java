@@ -16,6 +16,9 @@
 
 package org.ros.rosjava.tf.tools.viz;
 
+import com.mxgraph.model.mxGeometry;
+import com.mxgraph.util.mxRectangle;
+import com.mxgraph.view.mxGraph;
 import org.jgrapht.ListenableGraph;
 import org.jgrapht.graph.*;
 import org.ros.node.*;
@@ -29,6 +32,9 @@ import com.mxgraph.layout.*;
 import com.mxgraph.swing.*;
 
 import java.awt.Dimension;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.net.URI;
 import java.util.HashMap;
 
@@ -59,33 +65,56 @@ public class TfViz extends AbstractNodeMain implements GraphListener<String, Tra
 		public JGraphXApplet(TfViz tfViz) {
 			this.tfViz = tfViz;
 		}
-		public mxCircleLayout layout;
+		private mxCompactTreeLayout layout;
+		private mxGraphComponent component;
 
 		@Override
 		public void init() {
 			System.out.println("Initializing JGraphXApplet");
 			setPreferredSize(DEFAULT_SIZE);
-			mxGraphComponent component = new mxGraphComponent(tfViz.jgxAdapter);
+			component = new mxGraphComponent(tfViz.jgxAdapter);
 			component.setConnectable(false);
 			component.getGraph().setAllowDanglingEdges(false);
+
 			getContentPane().add(component);
 			resize(DEFAULT_SIZE);
 
 			// positioning via jgraphx layouts
-			layout = new mxCircleLayout(tfViz.jgxAdapter);
+			layout = new mxCompactTreeLayout(tfViz.jgxAdapter);
 
-			// center the circle
-			int radius = 100;
-			layout.setX0((DEFAULT_SIZE.width / 2.0) - radius);
-			layout.setY0((DEFAULT_SIZE.height / 2.0) - radius);
-			layout.setRadius(radius);
-			layout.setMoveCircle(true);
+			// configure layout
+			layout.setHorizontal(false);
+			//layout.setNodeDistance(100);
+
+			tfViz.frame.addComponentListener(new ComponentAdapter(){
+				@Override
+				public void componentResized(ComponentEvent e) {
+					center();
+				}
+			});
 
 			relayout();
 		}
 
 		public void relayout() {
 			layout.execute(tfViz.jgxAdapter.getDefaultParent());
+			center();
+		}
+
+		public void center() {
+			mxGraph graph = layout.getGraph() ;
+			mxRectangle graphBounds = graph.getGraphBounds();
+			mxRectangle layoutBounds = component.getLayoutAreaSize();
+
+			//System.out.println("Bounds: "+graphBounds.toString());
+			//System.out.println("LayoutAreaSize: "+component.getLayoutAreaSize().toString());
+
+			graph.getModel().setGeometry(graph.getDefaultParent(), new mxGeometry(
+					(layoutBounds.getWidth() - graphBounds.getWidth())/2.0,
+					(layoutBounds.getHeight() - graphBounds.getHeight())/2.0,
+					graphBounds.getWidth(),
+					graphBounds.getHeight()
+			));
 		}
 	}
 
@@ -173,15 +202,22 @@ public class TfViz extends AbstractNodeMain implements GraphListener<String, Tra
 	@Override
 	public void edgeAdded(GraphEdgeChangeEvent<String, TransformBuffer> e) {
 		try {
-			if (vertices.size() == 0) {
+			if (g.containsVertex("NONE")) {
 				g.removeVertex("NONE");
 			}
 
 			TransformBuffer txBuff = e.getEdge();
 
+			if (!g.containsVertex(txBuff.parentFrame)) {
+				g.addVertex(txBuff.parentFrame);
+			}
+
+			if (!g.containsVertex(txBuff.childFrame)) {
+				g.addVertex(txBuff.childFrame);
+			}
+
 			g.addEdge(txBuff.parentFrame, txBuff.childFrame);
 			applet.relayout();
-			//frame.repaint();
 		}
 		catch (Exception exp) {
 			exp.printStackTrace();
@@ -194,22 +230,19 @@ public class TfViz extends AbstractNodeMain implements GraphListener<String, Tra
 
 	@Override
 	public void vertexAdded(GraphVertexChangeEvent<String> e) {
-		System.out.println("Adding new vertex");
 		try {
-			if (vertices.size() == 0) {
+			if (g.containsVertex("NONE")) {
 				g.removeVertex("NONE");
 			}
 
 			String tfFrameName = e.getVertex();
+			System.out.println("Adding new vertex \""+tfFrameName+"\"");
 			g.addVertex(tfFrameName);
-			//frame.repaint();
+			applet.relayout();
 		}
 		catch (Exception exp) {
 			exp.printStackTrace();
 		}
-		System.out.println("Vertex set size: "+g.vertexSet().size());
-		applet.relayout();
-		//applet.init();
 	}
 
 	@Override
