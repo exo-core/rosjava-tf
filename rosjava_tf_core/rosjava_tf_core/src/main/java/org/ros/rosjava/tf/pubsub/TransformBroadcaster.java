@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import com.google.common.base.Preconditions;
 
 import geometry_msgs.TransformStamped;
-import tf.tfMessage;
+import tf2_msgs.TFMessage;
 import org.ros.node.ConnectedNode;
 import org.ros.node.topic.Publisher;
 import org.ros.message.MessageFactory;
@@ -34,7 +34,7 @@ import org.ros.message.MessageFactory;
 public class TransformBroadcaster {
 
 	protected final ConnectedNode node;
-	protected Publisher<tfMessage> pub;
+	protected Publisher<TFMessage> pub;
 	protected MessageFactory messageFactory;
 	
 	public TransformBroadcaster(ConnectedNode node) {
@@ -45,7 +45,7 @@ public class TransformBroadcaster {
 	
 	protected void advertise() {
 		Preconditions.checkNotNull(node);
-		this.pub = node.newPublisher("/tf", "tf/tfMessage");
+		this.pub = node.newPublisher("/tf", TFMessage._TYPE);
 		this.pub.setLatchMode(true);
 		node.getLog().debug("TransformBroadcaster advertised on /tf.");
 	}
@@ -86,7 +86,7 @@ public class TransformBroadcaster {
 		rotation.setW(q_w);
 		txMsg.getTransform().setRotation(rotation);
 
-		tfMessage msg = messageFactory.newFromType(tfMessage._TYPE);
+		TFMessage msg = messageFactory.newFromType(TFMessage._TYPE);
 		msg.setTransforms(new ArrayList<TransformStamped>(1));
 		msg.getTransforms().add(txMsg);
 

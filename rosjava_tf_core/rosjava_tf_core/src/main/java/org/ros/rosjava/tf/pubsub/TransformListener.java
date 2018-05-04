@@ -28,7 +28,7 @@ import org.ros.rosjava.tf.StampedTransform;
 import org.ros.rosjava.tf.TransformBuffer;
 import org.ros.rosjava.tf.TransformFactory;
 import org.ros.rosjava.tf.TransformTree;
-import tf.tfMessage;
+import tf2_msgs.TFMessage;
 
 import com.google.common.base.Preconditions;
 
@@ -40,7 +40,7 @@ public class TransformListener extends Observable {
 	protected final ConnectedNode node;
 	protected final TransformTree tfTree;
 
-	private Subscriber<tfMessage> subscriber;
+	private Subscriber<TFMessage> subscriber;
 
 	public TransformListener(ConnectedNode node) {
 		this.node = node;
@@ -50,11 +50,11 @@ public class TransformListener extends Observable {
 	
 	public void subscribe() {
 		Preconditions.checkNotNull(node);
-	    subscriber = node.newSubscriber("/tf", tfMessage._TYPE);
+	    subscriber = node.newSubscriber("/tf", TFMessage._TYPE);
 
-	    subscriber.addMessageListener(new MessageListener<tfMessage>() {
+	    subscriber.addMessageListener(new MessageListener<TFMessage>() {
 	      @Override
-	      public void onNewMessage(final tfMessage message) {
+	      public void onNewMessage(final TFMessage message) {
 	    	  Collection<StampedTransform> transforms = TransformFactory.fromTfMessage(message);
 	    	  tfTree.add(transforms);
 	    	  //setChanged(); // observable stuff

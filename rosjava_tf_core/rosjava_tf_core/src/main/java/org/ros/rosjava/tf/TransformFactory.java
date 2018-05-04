@@ -8,14 +8,14 @@ import javax.vecmath.Vector3d;
 import org.ros.message.MessageFactory;
 import org.ros.node.NodeConfiguration;
 
-import tf.tfMessage;
+import tf2_msgs.TFMessage;
 import org.ros.rosjava.tf.StampedTransform;
 
 public class TransformFactory {
 	private static NodeConfiguration nodeConfiguration = NodeConfiguration.newPrivate();
 	private static MessageFactory messageFactory = nodeConfiguration.getTopicMessageFactory();
 	
-	public static Collection<StampedTransform> fromTfMessage(tfMessage msg) {
+	public static Collection<StampedTransform> fromTfMessage(TFMessage msg) {
 		ArrayList<StampedTransform> transforms = new ArrayList<StampedTransform>(msg.getTransforms().size());
 		for(int i = 0; i < msg.getTransforms().size(); i++) {
 			transforms.add(TransformFactory.msg2transform(msg.getTransforms().get(i)));

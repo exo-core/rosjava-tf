@@ -35,7 +35,7 @@ import org.ros.rosjava.tf.tools.viz.TfViz;
 
 public class VizDemo {
 	
-	protected static final String laptopIp = "localhost";
+	protected static final String laptopIp = System.getenv("ROS_IP");
 	protected static final int masterPort = 11311;
 	protected static final String laptopMasterUriString = "http://" + laptopIp + ":" + masterPort;
 	protected final NodeMainExecutor nodeRunner;
