@@ -31,85 +31,71 @@ import org.jgrapht.event.GraphEdgeChangeEvent;
 import org.jgrapht.event.GraphListener;
 import org.jgrapht.event.GraphVertexChangeEvent;
 
-	/**
-	 * @author nick@heuristiclabs.com (Nick Armstrong-Crews)
-	 * @brief real-time, interactive graph visualizer for rosjava_tf
-	 * 
-	 * @since Sep 5, 2011
-	 */
-	public class TfTextViz extends AbstractNodeMain implements GraphListener<String,TransformBuffer> {
+/**
+ * @author nick@heuristiclabs.com (Nick Armstrong-Crews)
+ * @brief real-time, interactive graph visualizer for rosjava_tf
+ *
+ * @since Sep 5, 2011
+ */
+public class TfTextViz extends AbstractNodeMain implements GraphListener<String,TransformBuffer> {
 
-		protected static String laptopMasterUri = "http://localhost:11311";
+	@Override
+	public GraphName getDefaultNodeName() {
+		return GraphName.of("rosjava/tfTextViz");
+	}
 
-		@Override
-		public GraphName getDefaultNodeName() {
-			return GraphName.of("rosjava/tfTextViz");
+	private ConnectedNode node;
+	private TransformListener tfl;
+
+	//protected final HashMap<String,Edge> edges;
+
+	public TfTextViz() {
+		//edges = new HashMap<String,Edge>();
+	}
+
+	@Override
+	public void onStart(ConnectedNode connectedNode) {
+		try {
+			node = connectedNode;
+			tfl = new TransformListener(node);
+			tfl.addListener(this);
 		}
-		
-	    public static void main(String [] args) {
-			try {
-				NodeMainExecutor nodeRunner = DefaultNodeMainExecutor.newDefault();
-				URI masterUri = new URI(laptopMasterUri);
-				NodeConfiguration nodeConfiguration =
-					NodeConfiguration.newPublic("localhost", masterUri);
-				nodeRunner.execute(new TfTextViz(), nodeConfiguration);
-			} catch(Exception e) {
+		catch (Exception e) {
+			if (node != null) {
+				node.getLog().fatal(e);
+			}
+			else {
 				e.printStackTrace();
-			}			
-	    }
+			}
+		}
+	}
 
-	    private ConnectedNode node;
-	    private TransformListener tfl;
+	@Override
+	public void onShutdown(Node node) {
+		//this.node.shutdown();
+		this.node = null;
+	}
 
-	    //protected final HashMap<String,Edge> edges;
-	    	  
-	    public TfTextViz() {
-	    	//edges = new HashMap<String,Edge>();
-	    }
-	    
-	    @Override
-	    public void onStart(ConnectedNode connectedNode) {
-	    	try {
-	    		node = connectedNode;
-	    		tfl = new TransformListener(node);
-	    		tfl.addListener(this);
-	    	}
-	    	catch (Exception e) {
-	    		if (node != null) {
-	    			node.getLog().fatal(e);
-	    	    }
-	    	    else {
-	    	    	e.printStackTrace();
-	    	    }
-	    	}
-	    }
+	@Override
+	public void edgeAdded(GraphEdgeChangeEvent<String, TransformBuffer> e) {
+		try {
+			// TODO: use topological ordering to print neatly
+			// TopologicalOrderIterator(DirectedGraph<V,E> dg)
+			for( TransformBuffer txBuff : tfl.getTree().getGraph().edgeSet() ) {
+				Transform tx = tfl.getTree().lookupMostRecent(txBuff.parentFrame, txBuff.childFrame);
+				System.out.println(tx.toString());
+			}
+			//System.out.println(e.getEdge().getId());
+		} catch(Exception exp) {exp.printStackTrace();}
+	}
 
-	    @Override
-	    public void onShutdown(Node node) {
-	    	this.node.shutdown();
-	    	this.node = null;
-	    }
+	@Override
+	public void edgeRemoved(GraphEdgeChangeEvent<String, TransformBuffer> e) {} // we never remove edges
 
-	    @Override
-	    public void edgeAdded(GraphEdgeChangeEvent<String, TransformBuffer> e) {
-	    	try {
-	    		// TODO: use topological ordering to print neatly
-	    		// TopologicalOrderIterator(DirectedGraph<V,E> dg)
-	    		for( TransformBuffer txBuff : tfl.getTree().getGraph().edgeSet() ) {
-	    			Transform tx = tfl.getTree().lookupMostRecent(txBuff.parentFrame, txBuff.childFrame);
-	    			System.out.println(tx.toString());
-	    		}
-	    		//System.out.println(e.getEdge().getId());
-	    	} catch(Exception exp) {exp.printStackTrace();}
-	    }
+	@Override
+	public void vertexAdded(GraphVertexChangeEvent<String> e) {}
 
-	    @Override
-	    public void edgeRemoved(GraphEdgeChangeEvent<String, TransformBuffer> e) {} // we never remove edges
+	@Override
+	public void vertexRemoved(GraphVertexChangeEvent<String> e) {}  // we never remove nodes
 
-	    @Override
-	    public void vertexAdded(GraphVertexChangeEvent<String> e) {}
-
-	    @Override
-	    public void vertexRemoved(GraphVertexChangeEvent<String> e) {}  // we never remove nodes
-	    
 }

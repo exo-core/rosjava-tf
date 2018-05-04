@@ -15,3 +15,6 @@
  */
 
 include 'rosjava_tf_tools'
+include 'tf_text_viz'
+include 'tf_viz'
+include 'viz_demo'

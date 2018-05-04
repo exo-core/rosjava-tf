@@ -71,14 +71,4 @@ public class VizDemo {
 		nodeRunner.execute(new TfViz(), NodeConfiguration.newPublic("localhost", masterUri));
 
 	}
-	  
-	public static void main(String [] args) {
-		try {
-			VizDemo demo = new VizDemo();
-			demo.startNodes();
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-	  }
-
 }

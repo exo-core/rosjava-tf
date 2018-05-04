@@ -118,20 +118,6 @@ public class TfViz extends AbstractNodeMain implements GraphListener<String, Tra
 		}
 	}
 
-	protected static String laptopMasterUri = "http://"+System.getenv("ROS_IP")+":11311";
-
-	public static void main(String[] args) {
-		try {
-			NodeMainExecutor nodeRunner = DefaultNodeMainExecutor.newDefault();
-			URI masterUri = new URI(laptopMasterUri);
-			NodeConfiguration nodeConfiguration =
-					NodeConfiguration.newPublic("localhost", masterUri);
-			nodeRunner.execute(new TfViz(), nodeConfiguration);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 	@Override
 	public GraphName getDefaultNodeName() {
 		return GraphName.of("rosjava/tf_viz");

@@ -14,6 +14,10 @@
  * the License.
  */
 
+/* This plugin is necessary for creating installApp tasks (i.e. executables) */
+apply plugin: 'application'
+mainClassName = 'org.ros.rosjava.tf.tools.viz.RunTfTextViz'
+
 /*
  Examples of
    1) dependencies from another project in this gradle stack.
@@ -29,12 +33,10 @@
    version number changes.
 */
 
-//apply plugin: 'java'
-
 dependencies {
   /* An external maven artifact dependency */
   /* Example of a local subproject dependency */
-  /* compile project(':sibling_gradle_project') */
+  compile project(':rosjava_tf_tools')
   compile 'org.ros.rosjava_core:rosjava:[0.2,)'
   compile 'org.ros.rosjava_messages:tf:[1.10.6,)'
   compile 'org.ros.rosjava_messages:geometry_msgs:[1.10.6,)'
@@ -46,10 +48,11 @@ dependencies {
   /*compile 'com.touchgraph:TGGraphLayout:[1.0,)'*/
 }
 
+
 repositories {
   maven {
     url "http://maven.nuiton.org/nexus/content/groups/releases/"
   }
 }
 
-defaultTasks 'publish', 'install'
+defaultTasks 'publish', 'installApp'
