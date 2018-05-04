@@ -40,7 +40,8 @@ public class TransformListener extends Observable {
 	protected final ConnectedNode node;
 	protected final TransformTree tfTree;
 
-	private Subscriber<TFMessage> subscriber;
+	private Subscriber<TFMessage> tfSubscriber;
+	private Subscriber<TFMessage> staticTfSubscriber;
 
 	public TransformListener(ConnectedNode node) {
 		this.node = node;
@@ -50,9 +51,9 @@ public class TransformListener extends Observable {
 	
 	public void subscribe() {
 		Preconditions.checkNotNull(node);
-	    subscriber = node.newSubscriber("/tf", TFMessage._TYPE);
 
-	    subscriber.addMessageListener(new MessageListener<TFMessage>() {
+	    tfSubscriber = node.newSubscriber("/tf", TFMessage._TYPE);
+	    tfSubscriber.addMessageListener(new MessageListener<TFMessage>() {
 	      @Override
 	      public void onNewMessage(final TFMessage message) {
 	    	  Collection<StampedTransform> transforms = TransformFactory.fromTfMessage(message);
@@ -61,6 +62,17 @@ public class TransformListener extends Observable {
 	    	  //notifyObservers(); // observable stuff
 	      }
 	    });
+
+		staticTfSubscriber = node.newSubscriber("/tf_static", TFMessage._TYPE);
+		staticTfSubscriber.addMessageListener(new MessageListener<TFMessage>() {
+			@Override
+			public void onNewMessage(final TFMessage message) {
+				Collection<StampedTransform> transforms = TransformFactory.fromTfMessage(message);
+				tfTree.add(transforms);
+				//setChanged(); // observable stuff
+				//notifyObservers(); // observable stuff
+			}
+		});
 	}
 
 	public void addListener(GraphListener<String,TransformBuffer> listener) {
