@@ -16,7 +16,7 @@
 
 /* This plugin is necessary for creating installApp tasks (i.e. executables) */
 apply plugin: 'application'
-mainClassName = 'org.ros.RosRun'
+mainClassName = 'org.ros.rosjava.tf.tools.viz.demo.VizDemo'
 
 /*
  Examples of
