@@ -40,8 +40,8 @@ dependencies {
   compile 'org.ros.rosjava_messages:geometry_msgs:[1.10.6,)'
   compile 'org.ros.rosjava.tf:rosjava_tf_core:[0.2.0,)'
   compile 'javax.vecmath:vecmath:[1.4,)'
-  compile 'org.jgrapht:jgrapht-core:[0.9,)'
-  compile 'org.jgrapht:jgrapht-ext:[0.9,)'
+  compile 'org.jgrapht:jgrapht-core:[1.0, 1.2]'
+  compile 'org.jgrapht:jgrapht-ext:[1.0, 1.2]'
   compile 'com.mxgraph:jgraphx:[1,)'
   /*compile 'com.touchgraph:TGGraphLayout:[1.0,)'*/
 }

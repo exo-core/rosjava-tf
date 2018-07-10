@@ -118,7 +118,7 @@ public class Transform {
 	}
 	
 	public String toString() {
-		return String.format(	"{ %s->%s,\n  (%.2f,%.2f,%.2f),\n  (%.2f,%.2f,%.2f,%.2f) }",
+		return String.format(	"{\n\tLink: %s -> %s,\n\tPosition: (%.2f, %.2f, %.2f),\n\tRotation: (%.2f, %.2f, %.2f, %.2f)\n}",
 								parentFrame, childFrame,
 								translation.x, translation.y, translation.z,
 								rotation.x, rotation.y, rotation.z, rotation.w

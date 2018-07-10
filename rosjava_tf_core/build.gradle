@@ -24,7 +24,6 @@ buildscript {
 
 apply plugin: 'catkin'
 
-
 allprojects {
     /*
       A github url provides a good standard unique name for your project
@@ -53,6 +52,11 @@ subprojects {
     /* apply plugin: "eclipse" */
     /* apply plugin: "idea"    */
 }
+
+/*compileJava {
+    sourceCompatibility = '1.6'
+    targetCompatibility = '1.6'
+}*/
 
 /*
   Some useful tasks:
