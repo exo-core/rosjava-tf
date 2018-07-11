@@ -57,7 +57,8 @@ public class TransformTree extends AbstractTransformDatabase {
 				txBuff = new TransformBuffer(tx.parentFrame, tx.childFrame);
 				txBuff.put(tx);
 				graph.addEdge(tx.parentFrame, tx.childFrame, txBuff);
-			} else {
+			}
+			else {
 				txBuff = graph.getEdge(tx.parentFrame, tx.childFrame);
 				txBuff.put(tx);
 			}
@@ -69,7 +70,6 @@ public class TransformTree extends AbstractTransformDatabase {
 				txBuff.put(tx);
 			}
 			 */
-			
 		}
 
 	}
@@ -79,21 +79,38 @@ public class TransformTree extends AbstractTransformDatabase {
 	// TODO: handle backwards traversal of edges (i.e., inversion of transforms)
 	@Override
 	public Transform lookupTransformBetween(String frame1, String frame2, long t) {
-		GraphPath<String,TransformBuffer> path = DijkstraShortestPath.findPathBetween(graph, frame1, frame2);
+		//System.out.println("looking up path between "+frame1+" and "+frame2+" at "+t);
+
+		if (!graph.containsVertex(frame1) || !graph.containsVertex(frame2)) {
+			return null;
+		}
+
+		GraphPath<String,TransformBuffer> path = TransformTreePathLookup.findPathBetween(graph, frame1, frame2);
+
 		if(path != null && path.getLength() > 0) {
 			Vector<Transform> txPath = new Vector<Transform>(path.getLength());
 			for( TransformBuffer txBuff : path.getEdgeList() ) {
-				txPath.add(txBuff.lookupTransform(t));
+				Transform tx = txBuff.lookupTransform(t);
+				txPath.add(tx);
 			}
+
 			return TransformTree.collapseTransformPath(txPath);
-		} else return null;
+		}
+		else {
+			return null;
+		}
 	}
 	
 	public static Transform collapseTransformPath(List<Transform> path) {
 		assert(path != null);
 		assert(path.size() > 0);
+
 		Transform txAccum = path.remove(0); // start with first transform
-		for( Transform tx : path ) {
+
+		//int i = 0;
+		//System.out.println("path["+(i++)+"]: "+txAccum);
+		for (Transform tx : path) {
+			//System.out.println("path["+(i++)+"]: "+tx);
 			//txAccum = Transform.compose(txAccum, tx);
 			txAccum.compose(tx);
 		}
@@ -102,31 +119,38 @@ public class TransformTree extends AbstractTransformDatabase {
 	
 	public boolean canTransform(String frame1, String frame2) {
 		// NOTE: have to first check frames exist as vertices,
-		//       otherwise DijkstraShortestPath.findPathBetween dies
-		if(!graph.containsVertex(frame1)) return false;
-		else if(!graph.containsVertex(frame2)) return false;
+		//       otherwise TransformTreePathLookup.findPathBetween dies
+		if (!graph.containsVertex(frame1)) {
+			return false;
+		}
+		else if (!graph.containsVertex(frame2)) {
+			return false;
+		}
 		else {
-			GraphPath<String,TransformBuffer> path = DijkstraShortestPath.findPathBetween(graph, frame1, frame2);
+			GraphPath<String,TransformBuffer> path = TransformTreePathLookup.findPathBetween(graph, frame1, frame2);
 			//return false;
 			return path != null && path.getLength() > 0;
 		}
 	}
 	
 	public boolean canTransform(String frame1, String frame2, long t) {
-		GraphPath<String,TransformBuffer> path = DijkstraShortestPath.findPathBetween(graph, frame1, frame2);
-		if(path == null || path.getLength() == 0) return false;
-		for( TransformBuffer txBuff : path.getEdgeList() ) {
+		GraphPath<String,TransformBuffer> path = TransformTreePathLookup.findPathBetween(graph, frame1, frame2);
+		if(path == null || path.getLength() == 0) {
+			return false;
+		}
+		for (TransformBuffer txBuff : path.getEdgeList() ) {
 			if(!txBuff.isValidAt(t)) return false;
 		}
 		return true;
 	}
 	
 	public Transform lookupMostRecent(String frame1, String frame2) {
-		GraphPath<String,TransformBuffer> path = DijkstraShortestPath.findPathBetween(graph, frame1, frame2);
-		if(path != null && path.getLength() > 0) {
+		GraphPath<String,TransformBuffer> path = TransformTreePathLookup.findPathBetween(graph, frame1, frame2);
 
+		if (path != null && path.getLength() > 0) {
 			long mostRecentTime = Long.MAX_VALUE;
-			for( TransformBuffer txBuff : path.getEdgeList() ) {
+
+			for (TransformBuffer txBuff : path.getEdgeList() ) {
 				mostRecentTime = Math.min(mostRecentTime, txBuff.mostRecentTime());
 			}
 			
@@ -136,8 +160,10 @@ public class TransformTree extends AbstractTransformDatabase {
 			}
 
 			return TransformTree.collapseTransformPath(txPath);
-
-		} else return null;
+		}
+		else {
+			return null;
+		}
 	}
 		
 	public ListenableDirectedGraph<String,TransformBuffer> getGraph() {

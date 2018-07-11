@@ -16,7 +16,7 @@
 
 /* This plugin is necessary for creating installApp tasks (i.e. executables) */
 apply plugin: 'application'
-mainClassName = 'org.ros.rosjava.tf.tools.viz.RunTfViz'
+mainClassName = 'org.ros.rosjava.tf.tools.RunTransformListener'
 
 /*
  Examples of
@@ -44,7 +44,6 @@ dependencies {
   compile 'javax.vecmath:vecmath:[1.4,)'
   compile 'org.jgrapht:jgrapht-core:[1.0, 1.2]'
   compile 'org.jgrapht:jgrapht-ext:[1.0, 1.2]'
-  compile 'com.mxgraph:jgraphx:[1,)'
   /*compile 'com.touchgraph:TGGraphLayout:[1.0,)'*/
 }
 

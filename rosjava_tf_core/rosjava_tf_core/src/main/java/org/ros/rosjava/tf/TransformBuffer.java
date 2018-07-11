@@ -16,6 +16,7 @@
 
 package org.ros.rosjava.tf;
 
+import java.util.Map;
 import java.util.TreeMap;
 
 import javax.vecmath.Quat4d;
@@ -61,6 +62,13 @@ public class TransformBuffer {
 		history = new TreeMap<Long,StampedTransform>();
 	}
 
+	protected TransformBuffer(String parentFrame, String childFrame, int maxCapacity, TreeMap<Long, StampedTransform> history) {
+		this.parentFrame = parentFrame;
+		this.childFrame = childFrame;
+		this.maxCapacity = maxCapacity;
+		this.history = history;
+	}
+
 	public void put(StampedTransform tx) {
 		assert(tx.parentFrame == this.parentFrame && tx.childFrame == this.childFrame);
 		//assert(tx.timestamp > ) // make sure it's new
@@ -68,12 +76,20 @@ public class TransformBuffer {
 	}
 	
 	public Transform lookupTransform(long t) {
-		if(t < history.firstKey() || t > history.lastKey()) {
+		if(t < history.firstKey()) {
+			System.err.println("No transformation found for time "+t);
 			return new Transform(Transform.frameNames2transformId(parentFrame, childFrame),
-								"tfb" + t, new Vector3d(0,0,0), new Quat4d(0,0,0,1));
-		} else if(history.containsKey(t)) {		// if we have it exactly,
-			return history.get(t);	// just send it back
-		} else { // if not, have to interpolate between enclosing two
+					"tfb" + t, new Vector3d(0,0,0), new Quat4d(0,0,0,1));
+		}
+		else if(t > history.lastKey()) {
+			System.out.println("No transformation found for time "+t+". Using most recent transformation");
+			// TODO: wait for next pose update, then return interpolated result
+			return history.lastEntry().getValue().clone();
+		}
+		else if(history.containsKey(t)) { // if we have it exactly,
+			return history.get(t).clone(); // just send it back
+		}
+		else { // if not, have to interpolate between enclosing two
 			StampedTransform f0 = history.floorEntry(t).getValue();
 			StampedTransform f1 = history.ceilingEntry(t).getValue();
 			long t0 = f0.timestamp;
@@ -103,6 +119,8 @@ public class TransformBuffer {
 	public StampedTransform mostRecentTransform() {
 		return history.lastEntry().getValue();
 	}
-	
-	
+
+	public String toString() {
+		return "TransformBuffer("+parentFrame+" -> "+childFrame+"; "+history.size()+" history entries between "+history.firstEntry().getKey()+" and "+history.lastEntry().getKey()+")";
+	}
 }

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2011 Heuristic Labs, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -6,7 +6,7 @@
  * You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
- *   
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,10 +27,10 @@ import com.google.common.base.Strings;
  * @brief basic object representing transformation between to coordinate frames (e.g., "parent->child")
  */
 public class Transform {
-	
+
 	public String parentFrame;
 	public String childFrame;
-	
+
 	public Vector3d translation;
 	public Quat4d rotation;
 
@@ -43,20 +43,21 @@ public class Transform {
 	}
 
 	public Transform(
-						String parentFrame, String childFrame,
-						Vector3d translation, Quat4d rotation
-					)
-	{
+			String parentFrame, String childFrame,
+			Vector3d translation, Quat4d rotation
+	) {
 		this.parentFrame = parentFrame;
 		this.childFrame = childFrame;
 		this.translation = translation;
 		this.rotation = rotation;
+
+		//System.out.println(toString());
 	}
 
 	// compose(frame1->frame2, frame2->frame3) yields frame1->frame3
 	// in-place version
 	public void compose(Transform g) {
-		assert(this.childFrame == g.parentFrame);
+		assert (this.childFrame == g.parentFrame);
 		this.childFrame = g.childFrame;
 
 		// switch to matrix form for calculations
@@ -64,14 +65,14 @@ public class Transform {
 		Matrix4d A = this.asMatrix();
 		Matrix4d B = g.asMatrix();
 		A.mul(B); // in-place
-		
+
 		this.set(A);
 	}
-	
+
 	// compose(frame1->frame2, frame2->frame3) yields frame1->frame3
 	public static Transform compose(Transform f, Transform g) {
 
-		assert(f.childFrame == g.parentFrame);
+		assert (f.childFrame == g.parentFrame);
 		Transform h = new Transform(f.parentFrame, g.childFrame);
 
 		// switch to matrix form for calculations
@@ -79,9 +80,9 @@ public class Transform {
 		Matrix4d A = f.asMatrix();
 		Matrix4d B = g.asMatrix();
 		A.mul(B); // in-place
-		
+
 		h.set(A);
-		
+
 		return h;
 
 	}
@@ -102,27 +103,27 @@ public class Transform {
 	public Matrix4d asMatrix() {
 		return new Matrix4d(this.rotation, this.translation, 1.0d); // no scaling, so scale = 1
 	}
-	
+
 	public void set(Matrix4d M) {
 		M.get(this.translation); // populates translation vector from matrix M
 		M.get(this.rotation); // populates rotation quaternion from matrix M
 	}
-	
+
 	public static String frameNames2transformId(String parentFrame, String childFrame) {
 		return parentFrame + "->" + childFrame;
 	}
-	
+
 	public String getId() {
 		return frameNames2transformId(parentFrame, childFrame);
 		//return parentFrame + "->" + childFrame;
 	}
-	
+
 	public String toString() {
-		return String.format(	"{\n\tLink: %s -> %s,\n\tPosition: (%.2f, %.2f, %.2f),\n\tRotation: (%.2f, %.2f, %.2f, %.2f)\n}",
-								parentFrame, childFrame,
-								translation.x, translation.y, translation.z,
-								rotation.x, rotation.y, rotation.z, rotation.w
-							);
+		return String.format("{\n\tLink: %s -> %s,\n\tPosition: (%.2f, %.2f, %.2f),\n\tRotation: (%.2f, %.2f, %.2f, %.2f)\n}",
+				parentFrame, childFrame,
+				translation.x, translation.y, translation.z,
+				rotation.x, rotation.y, rotation.z, rotation.w
+		);
 /*
 		String s = "{ ";
 		s += getId();
@@ -139,17 +140,17 @@ public class Transform {
 	public boolean equals(Transform tx) {
 		return
 				tx.translation.equals(this.translation) &&
-				tx.rotation.equals(this.rotation);
+						tx.rotation.equals(this.rotation);
 	}
-	
+
 	@Override
 	public Transform clone() {
+		//System.out.println("cloning");
+
 		return new Transform(
-								parentFrame, childFrame, // immutable
-								(Vector3d) translation.clone(),
-								(Quat4d) rotation.clone()
-				
-				);
+				parentFrame, childFrame, // immutable
+				(Vector3d) translation.clone(),
+				(Quat4d) rotation.clone()
+		);
 	}
-	
 }
