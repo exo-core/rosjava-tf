@@ -37,16 +37,6 @@ public class TransformBuffer {
 	public final int maxCapacity;
 
 	public static final int DEFAULT_MAX_CAPACITY = 100; // a sensible default?
-
-	/*
-	public TransformBuffer(StampedTransform tx) {
-		this.parentFrame = tx.parentFrame;
-		this.childFrame = tx.childFrame;
-		this.maxCapacity = DEFAULT_MAX_CAPACITY;
-		history = new TreeMap<Long,StampedTransform>();
-		put(tx);
-	}
-	*/
 	
 	public TransformBuffer(String parentFrame, String childFrame) {
 		this.parentFrame = parentFrame;
@@ -73,6 +63,10 @@ public class TransformBuffer {
 		assert(tx.parentFrame == this.parentFrame && tx.childFrame == this.childFrame);
 		//assert(tx.timestamp > ) // make sure it's new
 		history.put(new Long(tx.timestamp), tx);
+
+		while (history.size() > maxCapacity) {
+			history.remove(history.firstEntry().getKey());
+		}
 	}
 	
 	public Transform lookupTransform(long t) {
@@ -121,6 +115,6 @@ public class TransformBuffer {
 	}
 
 	public String toString() {
-		return "TransformBuffer("+parentFrame+" -> "+childFrame+"; "+history.size()+" history entries between "+history.firstEntry().getKey()+" and "+history.lastEntry().getKey()+")";
+		return "TransformBuffer("+parentFrame+" -> "+childFrame+"; "+history.size()+" saved transformations between "+history.firstEntry().getKey()+" and "+history.lastEntry().getKey()+")";
 	}
 }
