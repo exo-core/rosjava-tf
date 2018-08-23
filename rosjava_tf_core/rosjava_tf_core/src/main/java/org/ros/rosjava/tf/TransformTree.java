@@ -19,7 +19,6 @@ package org.ros.rosjava.tf;
 import java.util.List;
 import java.util.Vector;
 
-import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.graph.ListenableDirectedGraph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.SimpleDirectedGraph;
@@ -87,8 +86,8 @@ public class TransformTree extends AbstractTransformDatabase {
 
 		GraphPath<String,TransformBuffer> path = TransformTreePathLookup.findPathBetween(graph, frame1, frame2);
 
-		if(path != null && path.getLength() > 0) {
-			Vector<Transform> txPath = new Vector<Transform>(path.getLength());
+		if(path != null && path.getEdgeList().size() > 0) {
+			Vector<Transform> txPath = new Vector<Transform>(path.getEdgeList().size());
 			for( TransformBuffer txBuff : path.getEdgeList() ) {
 				Transform tx = txBuff.lookupTransform(t);
 				txPath.add(tx);
@@ -129,13 +128,13 @@ public class TransformTree extends AbstractTransformDatabase {
 		else {
 			GraphPath<String,TransformBuffer> path = TransformTreePathLookup.findPathBetween(graph, frame1, frame2);
 			//return false;
-			return path != null && path.getLength() > 0;
+			return path != null && path.getEdgeList().size() > 0;
 		}
 	}
 	
 	public boolean canTransform(String frame1, String frame2, long t) {
 		GraphPath<String,TransformBuffer> path = TransformTreePathLookup.findPathBetween(graph, frame1, frame2);
-		if(path == null || path.getLength() == 0) {
+		if(path == null || path.getEdgeList().size() == 0) {
 			return false;
 		}
 		for (TransformBuffer txBuff : path.getEdgeList() ) {
@@ -147,14 +146,14 @@ public class TransformTree extends AbstractTransformDatabase {
 	public Transform lookupMostRecent(String frame1, String frame2) {
 		GraphPath<String,TransformBuffer> path = TransformTreePathLookup.findPathBetween(graph, frame1, frame2);
 
-		if (path != null && path.getLength() > 0) {
+		if (path != null && path.getEdgeList().size() > 0) {
 			long mostRecentTime = Long.MAX_VALUE;
 
 			for (TransformBuffer txBuff : path.getEdgeList() ) {
 				mostRecentTime = Math.min(mostRecentTime, txBuff.mostRecentTime());
 			}
 			
-			Vector<Transform> txPath = new Vector<Transform>(path.getLength());
+			Vector<Transform> txPath = new Vector<Transform>(path.getEdgeList().size());
 			for( TransformBuffer txBuff : path.getEdgeList() ) {
 				txPath.add(txBuff.lookupTransform(mostRecentTime));
 			}

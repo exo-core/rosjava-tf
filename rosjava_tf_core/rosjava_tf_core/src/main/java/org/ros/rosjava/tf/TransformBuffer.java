@@ -69,8 +69,17 @@ public class TransformBuffer {
 		}
 	}
 	
+	/**
+	 * Lookup a transformation to a given time.
+	 * Use t=0 to get the most recent transformation.
+	 * @param t
+	 * @return
+	 */
 	public Transform lookupTransform(long t) {
-		if(t < history.firstKey()) {
+		if (t == 0) {
+			return history.lastEntry().getValue().clone();
+		}
+		else if(t < history.firstKey()) {
 			System.err.println("No transformation found for time "+t);
 			return new Transform(Transform.frameNames2transformId(parentFrame, childFrame),
 					"tfb" + t, new Vector3d(0,0,0), new Quat4d(0,0,0,1));

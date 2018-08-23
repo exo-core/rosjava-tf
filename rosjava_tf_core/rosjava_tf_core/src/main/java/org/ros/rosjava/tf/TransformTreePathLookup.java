@@ -2,9 +2,10 @@ package org.ros.rosjava.tf;
 
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
-import org.jgrapht.graph.GraphWalk;
+import org.jgrapht.graph.GraphPathImpl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -73,11 +74,11 @@ public class TransformTreePathLookup {
 		//System.out.println(vertexList);
 		//System.out.println(edgeList);
 
-		return new GraphWalk<String, TransformBuffer>(treeGraph, source, target, vertexList, edgeList, edgeList.size());
+		return new GraphPathImpl<String, TransformBuffer>(treeGraph, source, target, edgeList, edgeList.size());
 	}
 
 	public List<String> getPathRoot(String vertex) {
-		Set<TransformBuffer> upEdges = treeGraph.incomingEdgesOf(vertex);
+		Set<TransformBuffer> upEdges = getIncomingEdgesOf(vertex);
 		List<String> result = new ArrayList<String>();
 		result.add(vertex);
 
@@ -95,6 +96,19 @@ public class TransformTreePathLookup {
 		}
 	}
 
+	public Set<TransformBuffer> getIncomingEdgesOf(String vertex) {
+		Set<TransformBuffer> allEdges = treeGraph.edgesOf(vertex);
+		Set<TransformBuffer> edges = new HashSet<TransformBuffer>();
+		
+		for(TransformBuffer txBuffer : allEdges) {
+			if(txBuffer.childFrame.equals(vertex)) {
+				edges.add(txBuffer);	
+			}
+		}
+		
+		return edges;
+	}
+	
 	public static GraphPath<String,TransformBuffer> findPathBetween(Graph<String, TransformBuffer> graph, String source, String target) {
 		TransformTreePathLookup treePathLookup = new TransformTreePathLookup(graph);
 		return treePathLookup.findPathBetween(source, target);

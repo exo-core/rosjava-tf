@@ -30,11 +30,10 @@ dependencies {
 	/* Example of an external maven artifact dependency */
 	/* Example of a local subproject dependency */
 	/* compile project(':sibling_gradle_project') */
-	compile 'org.ros.rosjava_core:rosjava:[0.2,)'
-	compile 'org.ros.rosjava_messages:tf2_msgs:[0.4,)'
-	compile 'org.ros.rosjava_messages:geometry_msgs:[1.10.6,)'
-	compile 'javax.vecmath:vecmath:[1.4,)'
-	compile 'org.jgrapht:jgrapht-core:[1.0, 1.2]'
-	/* compile 'org.jgrapht:jgrapht-ext:[0.9,)' */
+	compile 'org.ros.rosjava_core:rosjava:[0.1,)'
+	compile 'org.ros.rosjava_messages:tf2_msgs:[0.5,)'
+	compile 'org.ros.rosjava_messages:geometry_msgs:[1.11.7,)'
+	compile 'javax.vecmath:vecmath:1.5.2'
+	compile 'org.jgrapht:jgrapht-core:0.9.0'
 }
 
