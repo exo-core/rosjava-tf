@@ -109,6 +109,9 @@ public class TransformTree extends AbstractTransformDatabase {
 		//int i = 0;
 		//System.out.println("path["+(i++)+"]: "+txAccum);
 		for (Transform tx : path) {
+			if (tx == null) {
+				return null;
+			}
 			//System.out.println("path["+(i++)+"]: "+tx);
 			//txAccum = Transform.compose(txAccum, tx);
 			txAccum.compose(tx);

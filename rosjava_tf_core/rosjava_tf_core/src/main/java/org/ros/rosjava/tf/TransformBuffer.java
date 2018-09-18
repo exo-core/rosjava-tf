@@ -81,8 +81,7 @@ public class TransformBuffer {
 		}
 		else if(t < history.firstKey()) {
 			System.err.println("No transformation found for time "+t);
-			return new Transform(Transform.frameNames2transformId(parentFrame, childFrame),
-					"tfb" + t, new Vector3d(0,0,0), new Quat4d(0,0,0,1));
+			return null ;
 		}
 		else if(t > history.lastKey()) {
 			System.out.println("No transformation found for time "+t+". Using most recent transformation");
@@ -108,7 +107,7 @@ public class TransformBuffer {
 	
 	public boolean isValidAt(long t) {
 		if(history.containsKey(t)) return true;
-		else if(t > history.firstKey() && t < history.lastKey()) return true;
+		else if(history.firstKey() <= t && t <= history.lastKey()) return true;
 		else return false;
 	}
 	

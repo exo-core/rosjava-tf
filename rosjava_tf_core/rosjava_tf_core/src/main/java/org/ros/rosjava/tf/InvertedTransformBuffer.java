@@ -14,11 +14,16 @@ public class InvertedTransformBuffer extends TransformBuffer {
 	}
 
 	public Transform lookupTransform(long t) {
-		Transform tx = super.lookupTransform(t).clone();
-		//System.out.println("regular transformation: "+tx);
-		tx.invert();
-		//System.out.println("inverted transformation: "+tx);
-		return tx;
+		Transform transform = super.lookupTransform(t);
+		if (transform != null) {
+			Transform tx = super.lookupTransform(t).clone();
+			//System.out.println("regular transformation: "+tx);
+			tx.invert();
+			//System.out.println("inverted transformation: "+tx);
+			return tx;
+		}
+
+		return null;
 	}
 
 	public StampedTransform mostRecentTransform() {
