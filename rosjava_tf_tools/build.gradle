@@ -15,11 +15,11 @@
  */
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.14.1'
+    gradleVersion = '4.6'
 }
 
 buildscript {
-  apply from: "https://github.com/rosjava/rosjava_bootstrap/raw/kinetic/buildscript.gradle"
+    apply from: "https://github.com/CentralLabFacilities/rosjava_bootstrap/raw/clf/buildscript.gradle"
 }
 
 apply plugin: 'catkin'
@@ -66,4 +66,4 @@ subprojects {
   If you're using catkin_make, this is not important, since it will use the task list specified
   in CMakeLists.txt
 */
-defaultTasks 'tasks'
+defaultTasks 'publish', 'install'

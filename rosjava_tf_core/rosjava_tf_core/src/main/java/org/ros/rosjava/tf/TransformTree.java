@@ -78,6 +78,9 @@ public class TransformTree extends AbstractTransformDatabase {
 	// TODO: handle backwards traversal of edges (i.e., inversion of transforms)
 	@Override
 	public Transform lookupTransformBetween(String frame1, String frame2, long t) {
+		if (frame1.equals(frame2)) {
+			return new Transform(frame1, frame2);
+		}
 		//System.out.println("looking up path between "+frame1+" and "+frame2+" at "+t);
 
 		if (!graph.containsVertex(frame1) || !graph.containsVertex(frame2)) {
@@ -120,6 +123,9 @@ public class TransformTree extends AbstractTransformDatabase {
 	}
 	
 	public boolean canTransform(String frame1, String frame2) {
+		if (frame1.equals(frame2)) {
+			return true;
+		}
 		// NOTE: have to first check frames exist as vertices,
 		//       otherwise TransformTreePathLookup.findPathBetween dies
 		if (!graph.containsVertex(frame1)) {
@@ -136,6 +142,10 @@ public class TransformTree extends AbstractTransformDatabase {
 	}
 	
 	public boolean canTransform(String frame1, String frame2, long t) {
+		if (frame1.equals(frame2)) {
+			return true;
+		}
+
 		GraphPath<String,TransformBuffer> path = TransformTreePathLookup.findPathBetween(graph, frame1, frame2);
 		if(path == null || path.getEdgeList().size() == 0) {
 			return false;
@@ -147,6 +157,10 @@ public class TransformTree extends AbstractTransformDatabase {
 	}
 	
 	public Transform lookupMostRecent(String frame1, String frame2) {
+		if (frame1.equals(frame2)) {
+			return new Transform(frame1, frame2);
+		}
+
 		GraphPath<String,TransformBuffer> path = TransformTreePathLookup.findPathBetween(graph, frame1, frame2);
 
 		if (path != null && path.getEdgeList().size() > 0) {
