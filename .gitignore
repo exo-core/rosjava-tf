@@ -26,9 +26,11 @@ local.properties
 .idea
 .gradle
 
-
 #NDK
 obj/
 
 rosjava_tf_tools/rosjava_tf_tools/build
 rosjava_tf_tools/rosjava_tf_core/build
+
+# Git artifacts
+.orig
