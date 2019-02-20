@@ -69,18 +69,17 @@ public class TransformBuffer {
 		}
 	}
 	
-	/**
-	 * Lookup a transformation to a given time.
-	 * Use t=0 to get the most recent transformation.
-	 * @param t
-	 * @return
-	 */
 	public Transform lookupTransform(long t) {
+<<<<<<< HEAD
+		if(t < history.firstKey()) {
+			System.err.println("No transformation found for time "+t);
+=======
 		if (t == 0) {
 			return history.lastEntry().getValue().clone();
 		}
 		else if(t < history.firstKey()) {
 			System.err.println("No transformation found between \""+parentFrame+"\" and \""+childFrame+"\" for time "+t+".");
+>>>>>>> 2940104... more detailed debug output
 			return null ;
 		}
 		else if(t > history.lastKey()) {
