@@ -80,11 +80,11 @@ public class TransformBuffer {
 			return history.lastEntry().getValue().clone();
 		}
 		else if(t < history.firstKey()) {
-			System.err.println("No transformation found for time "+t);
+			System.err.println("No transformation found between \""+parentFrame+"\" and \""+childFrame+"\" for time "+t+".");
 			return null ;
 		}
 		else if(t > history.lastKey()) {
-			System.out.println("No transformation found for time "+t+". Using most recent transformation");
+			System.out.println("No transformation found between \""+parentFrame+"\" and \""+childFrame+"\" for time "+t+". Using most recent transformation ("+history.lastKey()+") instead");
 			// TODO: wait for next pose update, then return interpolated result
 			return history.lastEntry().getValue().clone();
 		}
