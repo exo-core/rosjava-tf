@@ -14,7 +14,7 @@
  * the License.
  */
 
-/* This plugin is necessary for creating installApp tasks (i.e. executables) */
+/* This plugin is necessary for creating installDist tasks (i.e. executables) */
 apply plugin: 'application'
 mainClassName = 'org.ros.rosjava.tf.tools.viz.RunTfViz'
 
@@ -55,4 +55,4 @@ repositories {
   }
 }
 
-defaultTasks 'publish', 'installApp'
+defaultTasks 'publish', 'installDist'

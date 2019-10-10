@@ -12,10 +12,10 @@ project(rosjava_tf_tools)
 find_package(catkin REQUIRED rosjava_build_tools)
 
 # Set the gradle targets you want catkin's make to run by default, e.g.
-#   catkin_rosjava_setup(installApp)
+#   catkin_rosjava_setup(installDist)
 # Note that the catkin_create_rosjava_xxx scripts will usually automatically
 # add tasks to this for you when you create subprojects.
-catkin_rosjava_setup(publish installApp)
+catkin_rosjava_setup(publish installDist)
 
 catkin_package()
 
